@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            overflow: hidden;
+        }
+
+        canvas {
+            background-color: #000;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="mycanvas"></canvas>
+    <script>
+        var mycanvas = document.getElementById("mycanvas");
+        mycanvas.width = window.innerWidth;
+        mycanvas.height = window.innerHeight;
+        var ctx = mycanvas.getContext("2d");
+        var snowArr = [];
+
+        function init() {
+            var snowNum = 80;
+            for (var i = 0; i < snowNum; i++) {
+                var x = Math.random() * mycanvas.width;
+                var y = 0;
+                var scale = Math.random() + 0.5;
+                var rotate = Math.random() * (Math.PI / 60);
+                var speddX = Math.random() + 1;
+                var speddY = Math.random() + 2;
+                var speddR = Math.random() / 30;
+                (function (x, y, scale, rotate, speddX, speddY, speddR) {
+                    setTimeout(function () {
+                        var obj = new Snow(x, y, scale, rotate, speddX, speddY, speddR);
+                        obj.render();
+                        snowArr.push(obj);
+                    }, Math.random() * 6000)
+                })(x, y, scale, rotate, speddX, speddY, speddR);
+            }
+            run();
+        }
+        init();
+
+        function run() {
+            setInterval(function () {
+                ctx.clearRect(0, 0, mycanvas.width, mycanvas.height);
+                for (var i = 0; i < snowArr.length; i++) {
+                    snowArr[i].x = (snowArr[i].x + snowArr[i].speddX) % mycanvas.width;
+                    snowArr[i].y = (snowArr[i].y + snowArr[i].speddY) % mycanvas.height;
+                    snowArr[i].rotate = (snowArr[i].rotate + snowArr[i].speddR) % 90;
+                    snowArr[i].render();
+                }
+            }, 30)
+        }
+
+        function Snow(x, y, scale, rotate, speddX, speddY, speddR) {
+            this.x = x;
+            this.y = y;
+            this.scale = scale;
+            this.rotate = rotate;
+            this.speddX = speddX;
+            this.speddY = speddY;
+            this.speddR = speddR;
+            this.render = function () {
+                ctx.save();
+                ctx.beginPath();
+                ctx.translate(this.x, this.y);
+                ctx.lineWidth = 10;
+                ctx.strokeStyle = "#fff";
+                ctx.lineCap = "round";
+                var disX = 20 * Math.sin((30 * Math.PI) / 180);
+                var disY = 20 * Math.sin((60 * Math.PI) / 180);
+                ctx.scale(this.scale, this.scale);
+                ctx.rotate(this.rotate);
+
+                ctx.moveTo(-20, 0);
+                ctx.lineTo(20, 0);
+
+                ctx.moveTo(-disX, disY);
+                ctx.lineTo(disX, -disY);
+
+                ctx.moveTo(-disX, -disY);
+                ctx.lineTo(disX, disY);
+                ctx.stroke();
+                ctx.closePath();
+                ctx.restore();
+            }
+        }
+    </script>
+</body>
+
+</html>
